@@ -1,89 +1,70 @@
 #include<iostream>
 #include<vector>
-#include<string>
 #include<algorithm>
 
 using namespace std;
 
-static int n;
 static vector<vector<int>> map;
-static vector<vector<int>> check;
+static vector<vector<bool>> check;
+static vector<int> ans;
+static int cnt;
 
-void dfs(int x, int y, int* cnt){
-    int dx[] = {-1, 0, 1, 0};
-    int dy[] = {0, -1, 0, 1};
+void dfs(int n, int y, int x){
+	int i,j,ex,ey;
+	
+	int dx[] = {-1, 0, 1, 0};
+	int dy[] = {0, -1, 0, 1};
 
-    check[y][x] = 1;
-    (*cnt)++;
-
-    int ex, ey;
-    for(int i=0; i<4; i++){
-        ex = x+dx[i];
-        ey = y+dy[i];
-        if(ex>=0 && ex<n && ey>=0 && ey<n){
-            if(map[ey][ex]==1 && check[ey][ex]==0){
-                dfs(ex,ey,cnt);
-            }
-        }
-    }
+	for(i=0; i<4; i++){
+		ex = x + dx[i];
+		ey = y + dy[i];
+		if(ex>=0 && ex<n && ey>=0 && ey<n){
+			if(map[ey][ex]==1 && !check[ey][ex]){
+				check[ey][ex]=true;						// 매 check를 언제 할건지 정해야된다
+				cnt++;
+				dfs(n,ey,ex);
+			}
+		}
+	}
 }
 
-void answer(){
-    vector<int> arr;
-    int i, j, cnt=0;
-    
-    for(i=0; i<n; i++){
-        for(j=0; j<n; j++){
-            if(map[i][j]==1 && check[i][j]==0){
-                dfs(j,i,&cnt);
-                arr.push_back(cnt);
-                cnt = 0;
-            }
-        }
-    }
-
-    sort(arr.begin(), arr.end());
-
-    printf("%ld\n", arr.size());
-    for(i=0; i<arr.size(); i++){
-        printf("%d\n", arr[i]);
-    }
+void answer(int n){
+	for(int i=0; i<n; i++){
+		for(int j=0; j<n; j++){
+			if(map[i][j]==1 && !check[i][j]){
+				cnt = 1;
+				check[i][j] = true;					// 매 check를 언제 할건지 정해야된다
+				dfs(n,i,j);							// 재귀함수 호출 직전 or 재귀함수 시작 하면서
+				ans.push_back(cnt);
+			}
+		}
+	}
 }
 
 int main(){
-    int i, j;
+	int n;
+	char temp;
 
-    cin >> n;
-    string str;
+	cin >> n;
+	map.resize(n, vector<int>(n));
+	check.resize(n, vector<bool>(n));
 
-    map.resize(n,vector<int>(n));
-    check.resize(n,vector<int>(n));
+	for(int i=0; i<n; i++){
+		for(int j=0; j<n; j++){
+			cin >> temp;					// 공백 없이 들어오는 정수 끊어 읽기
+			map[i][j] = temp - '0';
+		}
+	}
 
-    for(i=0;i<n;i++){
-        cin >> str;
-        for(j=0;j<str.size();j++){
-            map[i][j] = str[j]-'0';
-        }
-    }
+	answer(n);
+	
+	sort(ans.begin(),ans.end());
 
-    // printf("\n\n<<<< answer >>>>\n");
-    answer();
-    
-    // printf("\n\n<<<< map >>>>\n");
-    // for(i=0;i<n;i++){
-    //     for(j=0;j<n;j++){
-    //         printf("%d ",map[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
-    // printf("\n\n<<<< check >>>>\n");
-    // for(i=0;i<n;i++){
-    //     for(j=0;j<n;j++){
-    //         printf("%d ",check[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
-    return 0;
+	int s = ans.size();
+	printf("%d\n", s);
+	for(int i=0; i<s; i++){
+		printf("%d\n",ans[i]);
+	}
+	
+	return 0;
 }

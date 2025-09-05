@@ -1,35 +1,37 @@
 #include <iostream>
+#include <vector>
 #include <queue>
-#include <array>
 
 using namespace std;
 
-int bfs(int **map, bool* check, int sx, int sy, int x, int y){
-    std::queue<std::array<int,2>> q;
-    q.push({y,x});
-    check[y*sx+x] = true;
+static vector<vector<int>> map;
+static vector<vector<bool>> check;
+static vector<int> ans;
 
-    int nx, ny;
-    int dx[] = {-1,0,1,0};
-    int dy[] = {0,-1,0,1};
+int bfs(int n, int m, int y, int x){
+    int i,j, nx, ny, ex, ey;
+    queue<vector<int>> que;             // 자료구조만 queue -> stack 으로 바꿔주면 DFS
+    vector<int> temp;                   // 물론 .front() -> .top()
 
     int cnt = 1;
-
-    while(!q.empty()){
-        std::array<int,2> v = q.front();
-        q.pop();
-        int ex = v[1];
-        int ey = v[0];
-        
-        for(int i=0; i<4; i++){
-            nx = ex + dx[i];
-            ny = ey + dy[i];
-
-            if(nx<sx && nx>=0 && ny<sy && ny>=0 ){
-                if(map[ny][nx]==1 && check[ny*sx+nx]==false){
+    int dx[] = {-1,0,1,0};
+    int dy[] = {0,-1,0,1};
+    
+    que.push({x,y});
+    check[y][x] = true;
+    while(!que.empty()){                 
+        temp = que.front();
+        que.pop();
+        nx = temp[0];
+        ny = temp[1];
+        for(i=0; i<4; i++){
+            ex = nx+dx[i];
+            ey = ny+dy[i];
+            if(ex>=0 && ex<m && ey>=0 && ey<n){
+                if(map[ey][ex]==1 && !check[ey][ex]){
+                    check[ey][ex] = true;
+                    que.push({ex,ey});
                     cnt++;
-                    q.push({ny,nx});
-                    check[ny*sx+nx] = true;
                 }
             }
         }
@@ -37,49 +39,40 @@ int bfs(int **map, bool* check, int sx, int sy, int x, int y){
     return cnt;
 }
 
-int answer(int **map, int sx, int sy){
-    int i, j;
-    bool *check = (bool*)calloc(sx*sy, sizeof(bool));    
+int answer(int n, int m){
+    int i, j, cnt;
     int max = 0;
-    int temp;
-
-    for(i=0; i<sy; i++){
-        for(j=0; j<sx; j++){
-            if(check[i*sx+j]== false && map[i][j] == 1){
-                temp = bfs(map, check, sx, sy, j, i);
-                if (temp > max) max = temp;
+    for(i=0; i<n; i++){
+        for(j=0; j<m; j++){
+            if(map[i][j]==1 && !check[i][j]){
+                cnt = bfs(n,m,i,j);
+                ans.push_back(cnt);
+                if(cnt>max)
+                    max = cnt;
             }
         }
     }
-
-   free(check);
-   return max;
+    return max;
 }
 
-int main () {
+int main(){
     int n, m;
-    int i, j;
-
     cin >> n >> m;
 
-    // vector<vector<int>> map(n, vector<int>(m));
-    int **map = (int**)malloc(sizeof(int*)*n);
-    for(int i=0; i<n; i++){
-        map[i] = (int*)malloc(sizeof(int)*m);
-    }
+    map.resize(n,vector<int>(m));
+    check.resize(n,vector<bool>(m));
 
+    // 입력 mapping
+    int i,j;
     for(i=0; i<n; i++){
         for(j=0; j<m; j++){
             cin >> map[i][j];
         }
     }
 
-    printf("%d\n", answer(map,5,6));
-
-    for(int i=0; i<n; i++){
-        free(map[i]);
-    }
-    free(map);
+    int max = answer(n,m);
+    
+    printf("%d\n%d\n", ans.size(), max);
 
     return 0;
 }
