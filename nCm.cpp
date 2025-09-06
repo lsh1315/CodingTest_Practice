@@ -16,19 +16,19 @@ using namespace std;
 
 vector<int> ans;
 
-void recur(int n, int m){
+void recur(int n, int m, int idx){
     int i;
-    if(ans.size() == m+1){
-        for(i=1;i<m+1;i++){
+    if(ans.size() == m){
+        for(i=0;i<m;i++){
             printf("%d ",ans[i]);
         }
         printf("\n");
         return;
     }
-    if(ans.back() == n) return;
-    for(i=ans.back()+1; i<=n; i++){
+
+    for(i=idx; i<=n; i++){
         ans.push_back(i);
-        recur(n,m);
+        recur(n,m,i+1);
         ans.pop_back();
     }
 }
@@ -37,8 +37,7 @@ int main(){
     int n, m;
     cin >> n >> m;
 
-    ans.push_back(0);
-    recur(n,m);
+    recur(n,m,1);
 
     return 0;
 }
